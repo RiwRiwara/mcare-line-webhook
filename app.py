@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, redirect
 import requests
 import os
 from pymongo.mongo_client import MongoClient
@@ -59,7 +59,9 @@ def register(user_id):
     else:
         if not is_registered(user_id):
             users_collection.insert_one({"user_id": user_id})
-            send_message(user_id, register_message)
+            message_template = register_message
+            message_template["template"]["actions"][0]["uri"] = f"https://mcare-line-webhook.vercel.app/register?user_id={user_id}"
+            send_message(user_id, message_template)
 
 
 def is_registered(user_id):
@@ -72,12 +74,43 @@ def home():
 
 @app.route("/register", methods=["GET"])
 def register_page():
-    return render_template('register.html')
+    user_data = users_collection.find_one({"user_id": request.args.get("user_id")})
+    if not user_data:
+        return "ผิดพลาด "
+    return render_template('register.html', user_data=user_data)
 
-@app.route("/register", methods=["POST"])
-def register_form():
-    return "ลงทะเบียนเรียบร้อยแล้ว"
+@app.route("/setting", methods=["POST"])
+def setting_form():
+    user_id = request.form.get('user_id')
+    email = request.form.get('email')
+    notifications = {
+        "before_breakfast": False,
+        "after_breakfast": False,
+        "before_lunch": False,
+        "after_lunch": False,
+        "before_dinner": False,
+        "after_dinner": False,
+        "before_sleep": False
+    }
+    
+    selected_notifications = request.form.getlist('notifications')
+    for notification in selected_notifications:
+        if notification in notifications:
+            notifications[notification] = True
 
+    update_data = {
+        "email": email,
+        **notifications  
+    }
+
+    users_collection.update_one(
+        {"user_id": user_id},
+        {"$set": update_data},
+        upsert=True
+    )
+
+    # back to register page
+    return redirect(f"/register?user_id={user_id}")
 
     
 
@@ -98,7 +131,21 @@ def scheduled_task(message):
     users = users_collection.find()
     for user in users:
         user_id = user["user_id"]
-        send_message(user_id, message)
+        
+        if user["before_breakfast"]:
+            send_message(user_id, message)
+        if user["after_breakfast"]:
+            send_message(user_id, message)
+        if user["before_lunch"]:
+            send_message(user_id, message)
+        if user["after_lunch"]:
+            send_message(user_id, message)
+        if user["before_dinner"]:
+            send_message(user_id, message)
+        if user["after_dinner"]:
+            send_message(user_id, message)
+        if user["before_sleep"]:
+            send_message(user_id, message)
 
 
 if __name__ == "__main__":
