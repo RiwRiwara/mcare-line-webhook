@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 import requests
 import os
 from pymongo.mongo_client import MongoClient
@@ -8,11 +8,16 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 import atexit
 from dotenv import load_dotenv
-
 load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY")
+
+def static_file_exists(filename):
+    filepath = os.path.join(app.static_folder, filename)
+    return os.path.exists(filepath)
+app.jinja_env.globals['static_file_exists'] = static_file_exists
+
 
 LINE_ACCESS_TOKEN = os.getenv("LINE_ACCESS_TOKEN")
 MONGO_URI = os.getenv("MONGO_URI")
@@ -52,8 +57,9 @@ def register(user_id):
     if user:
         send_message(user_id, register_message_existed)
     else:
-        users_collection.insert_one({"user_id": user_id})
-        send_message(user_id, register_message)
+        if not is_registered(user_id):
+            users_collection.insert_one({"user_id": user_id})
+            send_message(user_id, register_message)
 
 
 def is_registered(user_id):
@@ -62,7 +68,18 @@ def is_registered(user_id):
 
 @app.route("/", methods=["GET"])
 def home():
-    return "Hello, World!"
+    return render_template('index.html')
+
+@app.route("/register", methods=["GET"])
+def register_page():
+    return render_template('register.html')
+
+@app.route("/register", methods=["POST"])
+def register_form():
+    return "ลงทะเบียนเรียบร้อยแล้ว"
+
+
+    
 
 @app.route("/webhook", methods=["POST"])
 def webhook():

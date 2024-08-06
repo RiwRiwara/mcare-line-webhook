@@ -13,7 +13,7 @@ register_message = {
             {
                 "type": "uri",
                 "label": "แบบฟอร์มลงทะเบียน",
-                "uri": "'https://forms.gle/XUTpwMhkQfqFVYL39'",
+                "uri": "https://mcare-line-webhook.vercel.app/register",
             }
         ],
     },

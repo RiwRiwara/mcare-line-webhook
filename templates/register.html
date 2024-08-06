@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+</head>
+<body>
+    <h1>Register</h1>
+    <form action="/register" method="POST">
+        <label for="email">Email</label>
+        <input type="text" name="email" id="email">
+
+        <h2>Select Notification Times</h2>
+        <label>
+            <input type="checkbox" name="notifications" value="before_breakfast">
+            ก่อนอาหารเช้า
+        </label><br>
+
+        <label>
+            <input type="checkbox" name="notifications" value="after_breakfast">
+            หลังอาหารเช้า
+        </label><br>
+
+        <label>
+            <input type="checkbox" name="notifications" value="before_lunch">
+            ก่อนอาหารกลางวัน
+        </label><br>
+
+        <label>
+            <input type="checkbox" name="notifications" value="after_lunch">
+            หลังอาหารกลางวัน
+        </label><br>
+
+        <label>
+            <input type="checkbox" name="notifications" value="before_dinner">
+            ก่อนอาหารเย็น
+        </label><br>
+
+        <label>
+            <input type="checkbox" name="notifications" value="after_dinner">
+            หลังอาหารเย็น
+        </label><br>
+
+        <label>
+            <input type="checkbox" name="notifications" value="before_sleep">
+            ก่อนนอน
+        </label><br>
+
+
+
+        <button type="submit">Register</button>
+    </form>
+</body>
+</html>
