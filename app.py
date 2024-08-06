@@ -7,6 +7,7 @@ from messages import register_message, register_message_existed, before_breakfas
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 import atexit
+import time
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -77,7 +78,9 @@ def register_page():
     user_data = users_collection.find_one({"user_id": request.args.get("user_id")})
     if not user_data:
         return "ผิดพลาด "
-    return render_template('register.html', user_data=user_data)
+    success = request.args.get("success")
+    current_time = time.strftime("%H:%M:%S", time.localtime())
+    return render_template('register.html', user_data=user_data, success=success, current_time=current_time)
 
 @app.route("/setting", methods=["POST"])
 def setting_form():
@@ -109,8 +112,8 @@ def setting_form():
         upsert=True
     )
 
-    # back to register page
-    return redirect(f"/register?user_id={user_id}")
+    success_message = "บันทึกข้อมูลสำเร็จ"
+    return redirect(f"/register?user_id={user_id}&success={success_message}", code=302)
 
     
 
@@ -133,19 +136,26 @@ def scheduled_task(message):
         user_id = user["user_id"]
         
         if user["before_breakfast"]:
-            send_message(user_id, message)
+            if message == before_breakfast_message:
+                send_message(user_id, message)
         if user["after_breakfast"]:
-            send_message(user_id, message)
+            if message == after_breakfast_message:
+                send_message(user_id, message)
         if user["before_lunch"]:
-            send_message(user_id, message)
+            if message == before_lunch_message:
+                send_message(user_id, message)
         if user["after_lunch"]:
-            send_message(user_id, message)
+            if message == after_lunch_message:
+                send_message(user_id, message)
         if user["before_dinner"]:
-            send_message(user_id, message)
+            if message == before_dinner_message:
+                send_message(user_id, message)
         if user["after_dinner"]:
-            send_message(user_id, message)
+            if message == after_dinner_message:
+                send_message(user_id, message)
         if user["before_sleep"]:
-            send_message(user_id, message)
+            if message == before_sleep_message:
+                send_message(user_id, message)
 
 
 if __name__ == "__main__":
@@ -209,7 +219,7 @@ if __name__ == "__main__":
     # Before bed reminder
     scheduler.add_job(
         func=scheduled_task,
-        trigger=CronTrigger(hour=20, minute=0),
+        trigger=CronTrigger(hour=2, minute=58),
         args=[before_sleep_message],
         id="before_bed",
         name="Before bed reminder",

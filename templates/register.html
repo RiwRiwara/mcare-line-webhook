@@ -8,78 +8,62 @@
 </head>
 
 <body>
-    
+    {% if success %}
+    <div style="margin: 10px 10px;padding: 5px; background-color: green;color: white;">
+        {{success}} - 
+         {{current_time}}
+    </div>
+    {% endif %}
     <h1>Setting</h1>
     <form action="/setting" method="POST">
 
         <div style="margin-bottom: 6px;">
             <label for="user_id">User ID</label>
-            <input type="text" readonly name="user_id" value="{{user_data.user_id}}" style="background-color: gainsboro;">
+            <input type="text" readonly name="user_id" value="{{user_data.user_id}}"
+                style="background-color: gainsboro;">
         </div>
 
 
         <h2>Select Notification Times</h2>
         <label>
-            <input type="checkbox" name="notifications" value="before_breakfast"
-            {% if user_data.before_breakfast %}
-            checked
-            {% endif %}
-            >
+            <input type="checkbox" name="notifications" value="before_breakfast" {% if user_data.before_breakfast %}
+                checked {% endif %}>
             ก่อนอาหารเช้า
         </label><br>
 
         <label>
-            <input type="checkbox" name="notifications" value="after_breakfast"
-            {% if user_data.after_breakfast %}
-            checked
-            {% endif %}
-            >
+            <input type="checkbox" name="notifications" value="after_breakfast" {% if user_data.after_breakfast %}
+                checked {% endif %}>
             หลังอาหารเช้า
         </label><br>
 
         <label>
-            <input type="checkbox" name="notifications" value="before_lunch"
-            {% if user_data.before_lunch %}
-            checked
-            {% endif %}
-            >
+            <input type="checkbox" name="notifications" value="before_lunch" {% if user_data.before_lunch %} checked {%
+                endif %}>
             ก่อนอาหารกลางวัน
         </label><br>
 
         <label>
-            <input type="checkbox" name="notifications" value="after_lunch"
-            {% if user_data.after_lunch %}
-            checked
-            {% endif %}
-
-            >
+            <input type="checkbox" name="notifications" value="after_lunch" {% if user_data.after_lunch %} checked {%
+                endif %}>
             หลังอาหารกลางวัน
         </label><br>
 
         <label>
-            <input type="checkbox" name="notifications" value="before_dinner"
-            {% if user_data.before_dinner %}
-            checked
-            {% endif %}
-            >
+            <input type="checkbox" name="notifications" value="before_dinner" {% if user_data.before_dinner %} checked
+                {% endif %}>
             ก่อนอาหารเย็น
         </label><br>
 
         <label>
-            <input type="checkbox" name="notifications" value="after_dinner"
-            {% if user_data.after_dinner %}
-            checked
-            {% endif %}
-            >
+            <input type="checkbox" name="notifications" value="after_dinner" {% if user_data.after_dinner %} checked {%
+                endif %}>
             หลังอาหารเย็น
         </label><br>
 
         <label>
-            <input type="checkbox" name="notifications" value="before_sleep"
-            {% if user_data.before_sleep %}
-            checked
-            {% endif %}
-            >
+            <input type="checkbox" name="notifications" value="before_sleep" {% if user_data.before_sleep %} checked {%
+                endif %}>
             ก่อนนอน
         </label><br>
 
