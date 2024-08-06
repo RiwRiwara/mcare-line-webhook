@@ -60,6 +60,9 @@ def is_registered(user_id):
     user = users_collection.find_one({"user_id": user_id})
     return user is not None
 
+@app.route("/", methods=["GET"])
+def home():
+    return "Hello, World!"
 
 @app.route("/webhook", methods=["POST"])
 def webhook():
@@ -151,4 +154,4 @@ if __name__ == "__main__":
 
     atexit.register(lambda: scheduler.shutdown())
 
-    app.run(port=8000)
+    app.run()
