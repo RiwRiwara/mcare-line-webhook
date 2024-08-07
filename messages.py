@@ -7,12 +7,12 @@ register_message = {
         "imageAspectRatio": "rectangle",
         "imageSize": "cover",
         "imageBackgroundColor": "#FFFFFF",
-        "title": "ลงทะเบียน",
+        "title": "แก้ไขการแจ้งเตือน",
         "text": "กดที่ลิงค์ด้านล่าง",
         "actions": [
             {
                 "type": "uri",
-                "label": "แบบฟอร์มลงทะเบียน",
+                "label": "ตั้งค่าการแจ้งเตือน",
                 "uri": "https://mcare-line-webhook.vercel.app/register",
             }
         ],

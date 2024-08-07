@@ -56,7 +56,9 @@ def register(user_id):
     user = users_collection.find_one({"user_id": user_id})
 
     if user:
-        send_message(user_id, register_message_existed)
+        message_template = register_message
+        message_template["template"]["actions"][0]["uri"] = f"https://mcare-line-webhook.vercel.app/register?user_id={user_id}"
+        send_message(user_id, message_template)
     else:
         if not is_registered(user_id):
             users_collection.insert_one({"user_id": user_id})
@@ -183,7 +185,7 @@ if __name__ == "__main__":
     # Lunch reminders
     scheduler.add_job(
         func=scheduled_task,
-        trigger=CronTrigger(hour=11, minute=30),
+        trigger=CronTrigger(hour=10, minute=5),
         args=[before_lunch_message],
         id="lunch_before",
         name="Lunch before meal reminder",
