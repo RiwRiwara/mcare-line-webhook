@@ -128,6 +128,8 @@ def webhook():
         if message == "ลงทะเบียน":
             user_id = body["events"][0]["source"]["userId"]
             register(user_id)
+    else:
+        print(body)
 
     return jsonify({"status": "ok"}), 200
 
@@ -159,21 +161,110 @@ def scheduled_task(message):
             if message == before_sleep_message:
                 send_message(user_id, message)
 
+@app.route("/before_breakfast", methods=["GET"])
+def before_breakfast():
+    scheduled_task(before_breakfast_message)
+    return "OK", 200
 
+@app.route("/after_breakfast", methods=["GET"])
+def after_breakfast():
+    scheduled_task(after_breakfast_message)
+    return "OK", 200
 
-def init_scheduler():
-    scheduler = BackgroundScheduler()
-    scheduler.start()
-    scheduler.add_job(func=scheduled_task, trigger=CronTrigger(hour=7, minute=30), args=[before_breakfast_message], id="breakfast_before", name="Breakfast before meal reminder", replace_existing=True)
-    scheduler.add_job(func=scheduled_task, trigger=CronTrigger(hour=8, minute=0), args=[after_breakfast_message], id="breakfast_after", name="Breakfast after meal reminder", replace_existing=True)
-    scheduler.add_job(func=scheduled_task, trigger=CronTrigger(hour=10, minute=19), args=[before_lunch_message], id="lunch_before", name="Lunch before meal reminder", replace_existing=True)
-    scheduler.add_job(func=scheduled_task, trigger=CronTrigger(hour=12, minute=0), args=[after_lunch_message], id="lunch_after", name="Lunch after meal reminder", replace_existing=True)
-    scheduler.add_job(func=scheduled_task, trigger=CronTrigger(hour=16, minute=30), args=[before_dinner_message], id="dinner_before", name="Dinner before meal reminder", replace_existing=True)
-    scheduler.add_job(func=scheduled_task, trigger=CronTrigger(hour=17, minute=0), args=[after_dinner_message], id="dinner_after", name="Dinner after meal reminder", replace_existing=True)
-    scheduler.add_job(func=scheduled_task, trigger=CronTrigger(hour=2, minute=58), args=[before_sleep_message], id="before_bed", name="Before bed reminder", replace_existing=True)
-    atexit.register(lambda: scheduler.shutdown())
+@app.route("/before_lunch", methods=["GET"])
+def before_lunch():
+    scheduled_task(before_lunch_message)
+    return "OK", 200
 
-init_scheduler()
+@app.route("/after_lunch", methods=["GET"])
+def after_lunch():
+    scheduled_task(after_lunch_message)
+    return "OK", 200
+
+@app.route("/before_dinner", methods=["GET"])
+def before_dinner():
+    scheduled_task(before_dinner_message)
+    return "OK", 200
+
+@app.route("/after_dinner", methods=["GET"])
+def after_dinner():
+    scheduled_task(after_dinner_message)
+    return "OK", 200
+
+@app.route("/before_sleep", methods=["GET"])
+def before_sleep():
+    scheduled_task(before_sleep_message)
+    return "OK", 200
+    
 
 if __name__ == "__main__":
+    scheduler = BackgroundScheduler()
+    scheduler.start()
+
+    # Breakfast reminders
+    scheduler.add_job(
+        func=scheduled_task,
+        trigger=CronTrigger(hour=7, minute=30),
+        args=[before_breakfast_message],
+        id="breakfast_before",
+        name="Breakfast before meal reminder",
+        replace_existing=True,
+    )
+    scheduler.add_job(
+        func=scheduled_task,
+        trigger=CronTrigger(hour=8, minute=0),
+        args=[after_breakfast_message],
+        id="breakfast_after",
+        name="Breakfast after meal reminder",
+        replace_existing=True,
+    )
+
+    # Lunch reminders
+    scheduler.add_job(
+        func=scheduled_task,
+        trigger=CronTrigger(hour=10, minute=5),
+        args=[before_lunch_message],
+        id="lunch_before",
+        name="Lunch before meal reminder",
+        replace_existing=True,
+    )
+    scheduler.add_job(
+        func=scheduled_task,
+        trigger=CronTrigger(hour=12, minute=0),
+        args=[after_lunch_message],
+        id="lunch_after",
+        name="Lunch after meal reminder",
+        replace_existing=True,
+    )
+
+    # Dinner reminders
+    scheduler.add_job(
+        func=scheduled_task,
+        trigger=CronTrigger(hour=16, minute=30),
+        args=[before_dinner_message],
+        id="dinner_before",
+        name="Dinner before meal reminder",
+        replace_existing=True,
+    )
+    scheduler.add_job(
+        func=scheduled_task,
+        trigger=CronTrigger(hour=17, minute=0),
+        args=[after_dinner_message],
+        id="dinner_after",
+        name="Dinner after meal reminder",
+        replace_existing=True,
+    )
+
+    # Before bed reminder
+    scheduler.add_job(
+        func=scheduled_task,
+        trigger=CronTrigger(hour=2, minute=58),
+        args=[before_sleep_message],
+        id="before_bed",
+        name="Before bed reminder",
+        replace_existing=True,
+    )
+
+    atexit.register(lambda: scheduler.shutdown())
+
     app.run()
