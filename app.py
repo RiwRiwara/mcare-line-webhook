@@ -4,9 +4,6 @@ import os
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 from messages import register_message, register_message_existed, before_breakfast_message, after_breakfast_message, before_lunch_message, after_lunch_message, before_dinner_message, after_dinner_message, before_sleep_message
-from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.triggers.cron import CronTrigger
-import atexit
 import time
 from dotenv import load_dotenv
 load_dotenv()
@@ -125,7 +122,7 @@ def webhook():
 
     if body["events"][0]["type"] == "message":
         message = body["events"][0]["message"]["text"]
-        if message == "ลงทะเบียน":
+        if message == "ตั้งเวลาแจ้งเตือน":
             user_id = body["events"][0]["source"]["userId"]
             register(user_id)
     else:
@@ -198,73 +195,5 @@ def before_sleep():
     
 
 if __name__ == "__main__":
-    scheduler = BackgroundScheduler()
-    scheduler.start()
-
-    # Breakfast reminders
-    scheduler.add_job(
-        func=scheduled_task,
-        trigger=CronTrigger(hour=7, minute=30),
-        args=[before_breakfast_message],
-        id="breakfast_before",
-        name="Breakfast before meal reminder",
-        replace_existing=True,
-    )
-    scheduler.add_job(
-        func=scheduled_task,
-        trigger=CronTrigger(hour=8, minute=0),
-        args=[after_breakfast_message],
-        id="breakfast_after",
-        name="Breakfast after meal reminder",
-        replace_existing=True,
-    )
-
-    # Lunch reminders
-    scheduler.add_job(
-        func=scheduled_task,
-        trigger=CronTrigger(hour=10, minute=5),
-        args=[before_lunch_message],
-        id="lunch_before",
-        name="Lunch before meal reminder",
-        replace_existing=True,
-    )
-    scheduler.add_job(
-        func=scheduled_task,
-        trigger=CronTrigger(hour=12, minute=0),
-        args=[after_lunch_message],
-        id="lunch_after",
-        name="Lunch after meal reminder",
-        replace_existing=True,
-    )
-
-    # Dinner reminders
-    scheduler.add_job(
-        func=scheduled_task,
-        trigger=CronTrigger(hour=16, minute=30),
-        args=[before_dinner_message],
-        id="dinner_before",
-        name="Dinner before meal reminder",
-        replace_existing=True,
-    )
-    scheduler.add_job(
-        func=scheduled_task,
-        trigger=CronTrigger(hour=17, minute=0),
-        args=[after_dinner_message],
-        id="dinner_after",
-        name="Dinner after meal reminder",
-        replace_existing=True,
-    )
-
-    # Before bed reminder
-    scheduler.add_job(
-        func=scheduled_task,
-        trigger=CronTrigger(hour=2, minute=58),
-        args=[before_sleep_message],
-        id="before_bed",
-        name="Before bed reminder",
-        replace_existing=True,
-    )
-
-    atexit.register(lambda: scheduler.shutdown())
 
     app.run()
