@@ -6,6 +6,9 @@ from pymongo.server_api import ServerApi
 from messages import register_message, register_message_existed, before_breakfast_message, after_breakfast_message, before_lunch_message, after_lunch_message, before_dinner_message, after_dinner_message, before_sleep_message
 import time
 from dotenv import load_dotenv
+#NEW----
+from datetime import datetime
+#NEW----
 load_dotenv()
 
 app = Flask(__name__)
@@ -188,6 +191,55 @@ def after_dinner():
     scheduled_task(after_dinner_message)
     return "OK", 200
 
+#NEW -----
+@app.route("/notification_job", methods=["GET"])
+def notification_job():
+    """
+    API endpoint that runs every hour and sends notifications based on predefined times
+    No arguments required
+    """
+    current_time = datetime.now().strftime("%H:%M")
+    sent_messages = []
+    
+    # Define your specific times (in 24-hour format "HH:MM")
+    schedule = {
+        "before_breakfast": "07:00",
+        "after_breakfast": "08:00",
+        "before_lunch": "11:30",
+        "after_lunch": "13:00",
+        "before_dinner": "17:30",
+        "after_dinner": "19:00",
+        "before_sleep": "22:00"
+    }
+    
+    # Check each scheduled time
+    for message_type, scheduled_time in schedule.items():
+        # Check if current time is within 5 minutes of scheduled time
+        current_hour, current_minute = map(int, current_time.split(':'))
+        sched_hour, sched_minute = map(int, scheduled_time.split(':'))
+        time_diff = (current_hour * 60 + current_minute) - (sched_hour * 60 + sched_minute)
+        
+        if abs(time_diff) <= 5:  # 5-minute window
+            # Get the corresponding message
+            message = globals()[f"{message_type}_message"]
+            users = users_collection.find()
+            sent_count = 0
+            
+            # Send to all users who have this notification enabled
+            for user in users:
+                user_id = user["user_id"]
+                if user.get(message_type, False):
+                    send_message(user_id, message)
+                    sent_count += 1
+            
+            sent_messages.append(f"Sent {message_type} to {sent_count} users")
+    
+    return jsonify({
+        "status": "success",
+        "current_time": current_time,
+        "messages_sent": sent_messages if sent_messages else ["No messages sent at this time"]
+    }), 200
+
 @app.route("/before_sleep", methods=["GET"])
 def before_sleep():
     scheduled_task(before_sleep_message)
@@ -197,3 +249,4 @@ def before_sleep():
 if __name__ == "__main__":
 
     app.run()
+#NEW -----
